@@ -6,6 +6,15 @@ import win32con
 
 @contextlib.contextmanager
 def privileges():
+    """
+    Acquire SeSystemEnvironmentPrivilege in order to access UEFI variables.
+
+    Usage example:
+    ```
+    with privileges():
+        get_variable("SomeVar")
+    ```
+    """
     process = win32process.GetCurrentProcess()
     token = win32security.OpenProcessToken(
         process,

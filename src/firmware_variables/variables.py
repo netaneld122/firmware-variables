@@ -2,7 +2,6 @@ from ctypes import WINFUNCTYPE, windll, create_string_buffer, pointer, WinError,
 from ctypes.wintypes import LPCSTR, LPVOID, DWORD, PDWORD
 from enum import IntFlag
 
-
 GLOBAL_NAMESPACE = "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"
 
 ERROR_BUFFER_TOO_SMALL = 122
@@ -21,6 +20,10 @@ class Attributes(IntFlag):
 DEFAULT_ATTRIBUTES = Attributes.NON_VOLATILE | \
                      Attributes.BOOT_SERVICE_ACCESS | \
                      Attributes.RUNTIME_ACCESS
+
+
+def gle():
+    return windll.kernel32.GetLastError()
 
 
 def generate_stdcall_binding(lib, name, return_type, params):
@@ -60,6 +63,14 @@ def set_firmware_environment_variable_ex_a(*args):
 
 
 def get_variable(name, namespace=GLOBAL_NAMESPACE):
+    """
+    Get the UEFI variable
+    :param name: Variable name
+    :param namespace: Guid of the form {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}
+    :param attributes: @see Attributes
+    :return: tuple of bytes and attributes
+    """
+
     allocation = 16
 
     while True:
@@ -74,13 +85,20 @@ def get_variable(name, namespace=GLOBAL_NAMESPACE):
 
         if stored_bytes != 0:
             return buffer.raw[:stored_bytes], Attributes(attributes.value)
-        elif stored_bytes == 0 and get_last_error() == ERROR_BUFFER_TOO_SMALL:
+        elif stored_bytes == 0 and gle() == ERROR_BUFFER_TOO_SMALL:
             allocation *= 2
         else:
             raise WinError()
 
 
 def set_variable(name, value, namespace=GLOBAL_NAMESPACE, attributes=DEFAULT_ATTRIBUTES):
+    """
+    Set the UEFI variable
+    :param name: Variable name
+    :param value: Data to put in the variable
+    :param namespace: Guid of the form {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}
+    :param attributes: @see Attributes
+    """
     attributes = DWORD(attributes)
     res = set_firmware_environment_variable_ex_a(
         name.encode(),
@@ -93,4 +111,10 @@ def set_variable(name, value, namespace=GLOBAL_NAMESPACE, attributes=DEFAULT_ATT
 
 
 def delete_variable(name, *args):
+    """
+    Delete the UEFI variable
+    :param name: Variable name
+    :param namespace: Guid of the form {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}
+    :param attributes: @see Attributes
+    """
     set_variable(name, value=b"", *args)
