@@ -8,7 +8,7 @@ setup(
     packages=['firmware_variables'],
     package_dir={'': 'src'},
     install_requires=['pywin32'],
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 3',

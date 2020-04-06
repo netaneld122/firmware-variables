@@ -1,9 +1,11 @@
-from firmware_variables import get, privileges
+from firmware_variables import get_variable, set_variable, privileges
 
 
 def doit():
     with privileges():
-        print(get("BootOrder"))
+        set_variable("test", b"test")
+        print(get_variable("test"))
+        print(get_variable("BootOrder"))
 
 
 if __name__ == "__main__":
