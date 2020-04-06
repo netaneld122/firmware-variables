@@ -14,6 +14,9 @@ class LoadOptionAttributes(IntFlag):
 
 
 class LoadOption:
+    """
+    This class represents the EFI_LOAD_OPTION in the UEFI spec
+    """
 
     def __init__(self):
         self.attributes = 0
@@ -23,6 +26,11 @@ class LoadOption:
 
     @staticmethod
     def from_bytes(raw):
+        """
+        Decode a load option from a boot entry blob
+        :param raw: boot entry data
+        :return: LoadOption
+        """
         # Decode load option header
         header = EFI_LOAD_OPTION.unpack(raw[:EFI_LOAD_OPTION.size])
         attributes, file_path_list_length = header
@@ -46,6 +54,10 @@ class LoadOption:
         return load_option
 
     def to_bytes(self):
+        """
+        Encode this load option as a boot entry blob
+        :return: bytes
+        """
         header = EFI_LOAD_OPTION.pack(self.attributes, len(self.file_path_list))
         return header + self.description.encode() + b'\x00\x00' + self.file_path_list + self.optional_data
 

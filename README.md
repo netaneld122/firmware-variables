@@ -25,8 +25,13 @@ with privileges():
                     Attributes.BOOT_SERVICE_ACCESS |
                     Attributes.RUNTIME_ACCESS)
 
-    # Manipulate boot order
+    # Manipulate the boot order
     order = get_boot_order()
-    print(get_boot_entry(order[0]))
     set_boot_order(order[1:])
+
+    # Modify boot entries
+    entry_data = get_boot_entry(order[0])
+    load_option = LoadOption.from_bytes(entry_data)
+    load_option.description = "Windows Groot Entry"
+    set_boot_entry(order[0], load_option.to_bytes())
 ```
