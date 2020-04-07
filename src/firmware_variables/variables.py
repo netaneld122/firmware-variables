@@ -1,5 +1,5 @@
 from ctypes import WINFUNCTYPE, windll, create_string_buffer, pointer, WinError, get_last_error
-from ctypes.wintypes import LPCSTR, LPVOID, DWORD, PDWORD
+from ctypes.wintypes import LPCWSTR, LPVOID, DWORD, PDWORD
 from enum import IntFlag
 
 GLOBAL_NAMESPACE = "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"
@@ -32,14 +32,14 @@ def generate_stdcall_binding(lib, name, return_type, params):
     return prototype((name, lib), paramflags)
 
 
-def get_firmware_environment_variable_ex_a(*args):
+def get_firmware_environment_variable_ex_w(*args):
     func = generate_stdcall_binding(
         lib=windll.kernel32,
-        name="GetFirmwareEnvironmentVariableExA",
+        name="GetFirmwareEnvironmentVariableExW",
         return_type=DWORD,
         params=(
-            (LPCSTR, "name"),
-            (LPCSTR, "guid"),
+            (LPCWSTR, "name"),
+            (LPCWSTR, "guid"),
             (LPVOID, "buffer"),
             (DWORD, "size"),
             (PDWORD, "attributes")
@@ -47,14 +47,14 @@ def get_firmware_environment_variable_ex_a(*args):
     return func(*args)
 
 
-def set_firmware_environment_variable_ex_a(*args):
+def set_firmware_environment_variable_ex_w(*args):
     func = generate_stdcall_binding(
         lib=windll.kernel32,
-        name="SetFirmwareEnvironmentVariableExA",
+        name="SetFirmwareEnvironmentVariableExW",
         return_type=DWORD,
         params=(
-            (LPCSTR, "name"),
-            (LPCSTR, "guid"),
+            (LPCWSTR, "name"),
+            (LPCWSTR, "guid"),
             (LPVOID, "value"),
             (DWORD, "size"),
             (DWORD, "attributes")
@@ -76,9 +76,9 @@ def get_variable(name, namespace=GLOBAL_NAMESPACE):
     while True:
         attributes = DWORD(0)
         buffer = create_string_buffer(allocation)
-        stored_bytes = get_firmware_environment_variable_ex_a(
-            name.encode(),
-            namespace.encode(),
+        stored_bytes = get_firmware_environment_variable_ex_w(
+            name,
+            namespace,
             pointer(buffer),
             len(buffer),
             pointer(attributes))
@@ -100,9 +100,9 @@ def set_variable(name, value, namespace=GLOBAL_NAMESPACE, attributes=DEFAULT_ATT
     :param attributes: @see Attributes
     """
     attributes = DWORD(attributes)
-    res = set_firmware_environment_variable_ex_a(
-        name.encode(),
-        namespace.encode(),
+    res = set_firmware_environment_variable_ex_w(
+        name,
+        namespace,
         value,
         len(value),
         attributes)
