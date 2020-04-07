@@ -31,8 +31,12 @@ with privileges():
     set_boot_order(order[1:])
 
     # Modify boot entries
+
     entry_data = get_boot_entry(order[0])
+
     load_option = LoadOption.from_bytes(entry_data)
     load_option.description = "Windows Groot Entry"
+    load_option.file_path_list.set_file_path(r"\EFI\Boot\myfile.efi")
+
     set_boot_entry(order[0], load_option.to_bytes())
 ```
