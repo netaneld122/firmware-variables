@@ -8,7 +8,7 @@ def doit():
             raw = get_boot_entry(entry_id)
             load_option = LoadOption.from_bytes(raw)
 
-            print("{:04X} {}".format(entry_id, load_option))
+            print("0x{:04X} {}".format(entry_id, load_option))
 
             assert load_option.to_bytes() == raw
 

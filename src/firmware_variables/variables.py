@@ -1,6 +1,9 @@
-from ctypes import WINFUNCTYPE, windll, create_string_buffer, pointer, WinError, get_last_error
-from ctypes.wintypes import LPCWSTR, LPVOID, DWORD, PDWORD
+from ctypes import create_string_buffer, pointer, WinError
+from ctypes.wintypes import DWORD
 from enum import IntFlag
+
+from .utils import gle, verify_uefi_firmware
+from .bindings import get_firmware_environment_variable_ex_w, set_firmware_environment_variable_ex_w
 
 GLOBAL_NAMESPACE = "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"
 
@@ -22,46 +25,6 @@ DEFAULT_ATTRIBUTES = Attributes.NON_VOLATILE | \
                      Attributes.RUNTIME_ACCESS
 
 
-def gle():
-    return windll.kernel32.GetLastError()
-
-
-def generate_stdcall_binding(lib, name, return_type, params):
-    prototype = WINFUNCTYPE(return_type, *(e[0] for e in params))
-    paramflags = tuple((1, e[1]) for e in params)
-    return prototype((name, lib), paramflags)
-
-
-def get_firmware_environment_variable_ex_w(*args):
-    func = generate_stdcall_binding(
-        lib=windll.kernel32,
-        name="GetFirmwareEnvironmentVariableExW",
-        return_type=DWORD,
-        params=(
-            (LPCWSTR, "name"),
-            (LPCWSTR, "guid"),
-            (LPVOID, "buffer"),
-            (DWORD, "size"),
-            (PDWORD, "attributes")
-        ))
-    return func(*args)
-
-
-def set_firmware_environment_variable_ex_w(*args):
-    func = generate_stdcall_binding(
-        lib=windll.kernel32,
-        name="SetFirmwareEnvironmentVariableExW",
-        return_type=DWORD,
-        params=(
-            (LPCWSTR, "name"),
-            (LPCWSTR, "guid"),
-            (LPVOID, "value"),
-            (DWORD, "size"),
-            (DWORD, "attributes")
-        ))
-    return func(*args)
-
-
 def get_variable(name, namespace=GLOBAL_NAMESPACE):
     """
     Get the UEFI variable
@@ -70,6 +33,8 @@ def get_variable(name, namespace=GLOBAL_NAMESPACE):
     :param attributes: @see Attributes
     :return: tuple of bytes and attributes
     """
+
+    verify_uefi_firmware()
 
     allocation = 16
 
@@ -99,6 +64,9 @@ def set_variable(name, value, namespace=GLOBAL_NAMESPACE, attributes=DEFAULT_ATT
     :param namespace: Guid of the form {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}
     :param attributes: @see Attributes
     """
+
+    verify_uefi_firmware()
+
     attributes = DWORD(attributes)
     res = set_firmware_environment_variable_ex_w(
         name,
