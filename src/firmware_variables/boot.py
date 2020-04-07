@@ -12,12 +12,12 @@ def get_boot_order():
     return [e[0] for e in struct.iter_unpack("<h", raw)]
 
 
-def set_boot_order(order):
+def set_boot_order(entry_ids):
     """
     Set the UEFI boot order
-    :param order: list of entry ids
+    :param entry_ids: list of entry ids
     """
-    raw = b''.join(struct.pack("<h", entry_id) for entry_id in order)
+    raw = b''.join(struct.pack("<h", entry_id) for entry_id in entry_ids)
     set_variable("BootOrder", raw)
 
 
