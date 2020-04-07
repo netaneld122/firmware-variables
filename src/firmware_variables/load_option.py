@@ -3,6 +3,7 @@ import struct
 from enum import IntFlag
 
 from .device_path import DevicePathList
+from .utils import extract_utf16_string
 
 EFI_LOAD_OPTION = struct.Struct("<IH")
 
@@ -14,14 +15,6 @@ class LoadOptionAttributes(IntFlag):
     LOAD_OPTION_CATEGORY_APP = 0x00000100
 
 
-# @TODO: Refactor this
-def extract_utf16_string(raw):
-    for i in range(0, len(raw), 2):
-        if raw[i:i + 2] == b'\x00\x00':
-            return raw[:i].decode('utf-16le')
-    raise RuntimeError("Invalid input")
-
-
 class LoadOption:
     """
     This class represents the EFI_LOAD_OPTION in the UEFI spec
@@ -30,7 +23,7 @@ class LoadOption:
     def __init__(self):
         self.attributes = 0
         self.description = ""
-        self.file_path_list = b''
+        self.file_path_list = DevicePathList()
         self.optional_data = b''
 
     @staticmethod
@@ -81,9 +74,4 @@ class LoadOption:
         return raw
 
     def __repr__(self):
-        # @TODO: Refactor this
-        p = ''
-        for path in self.file_path_list.paths:
-            if path.path_type == 4 and path.subtype == 4:
-                p = extract_utf16_string(path.data)
-        return f"<{self.description} {p} [{str(self.attributes)}]>"
+        return f"<{self.description} {self.file_path_list} [{str(self.attributes)}]>"
