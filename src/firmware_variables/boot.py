@@ -52,7 +52,7 @@ def set_boot_entry(entry_id, raw):
     :param raw: bytes of boot entry content
     """
     verify_uefi_firmware()
-    return set_variable("Boot{:04X}".format(entry_id), raw)[0]
+    set_variable("Boot{:04X}".format(entry_id), raw)
 
 
 def set_parsed_boot_entry(entry_id, load_option):
