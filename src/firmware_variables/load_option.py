@@ -3,7 +3,7 @@ import struct
 from enum import IntFlag
 
 from .device_path import DevicePathList
-from .utils import extract_utf16_string
+from .utils import utf16_string_from_bytes, string_to_utf16_bytes
 
 EFI_LOAD_OPTION = struct.Struct("<IH")
 
@@ -43,7 +43,7 @@ class LoadOption:
         load_option.attributes = LoadOptionAttributes(attributes)
 
         # Decode description
-        load_option.description = extract_utf16_string(raw[EFI_LOAD_OPTION.size:])
+        load_option.description = utf16_string_from_bytes(raw[EFI_LOAD_OPTION.size:])
 
         # Decode file path list
         str_size = (len(load_option.description) + 1) * 2
@@ -67,7 +67,7 @@ class LoadOption:
 
         # Concatenate all the parts
         raw = header
-        raw += self.description.encode('utf-16le') + b'\x00\x00'
+        raw += string_to_utf16_bytes(self.description)
         raw += raw_file_path_list
         raw += self.optional_data
 

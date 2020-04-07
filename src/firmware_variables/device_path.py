@@ -2,7 +2,7 @@ import struct
 
 from enum import Enum
 
-from .utils import extract_utf16_string
+from .utils import utf16_string_from_bytes, string_to_utf16_bytes
 
 EFI_DEVICE_PATH = struct.Struct("<BBH")
 
@@ -147,13 +147,35 @@ class DevicePathList:
 
         return raw
 
-    def file_path(self):
+    # Convenience methods for controlling file paths (if possible)
+
+    def get_file_path(self):
+        r"""
+        Get the file path that this device path list points to.
+        This will only work if there's a file device path node
+        with the type=MEDIA_DEVICE_PATH and subtype=FILE_PATH.
+        :return: Path of the form \EFI\... if the node exists, None otherwise
+        """
         for path in self.paths:
             if path.path_type == DevicePathType.MEDIA_DEVICE_PATH and \
                     path.subtype == MediaDevicePathSubtype.FILE_PATH:
-                return extract_utf16_string(path.data)
+                return utf16_string_from_bytes(path.data)
         return None
 
+    def set_file_path(self, file_path):
+        r"""
+        Set the file path that this device path list points to.
+        This will only work if there's a file device path node
+        with the type=MEDIA_DEVICE_PATH and subtype=FILE_PATH.
+        :param file_path: Path of the form \EFI\...
+        :return: True if the operation succeeded, False otherwise
+        """
+        for path in self.paths:
+            if path.path_type == DevicePathType.MEDIA_DEVICE_PATH and \
+                    path.subtype == MediaDevicePathSubtype.FILE_PATH:
+                path.data = string_to_utf16_bytes(file_path)
+                return True
+        return False
+
     def __repr__(self):
-        path = self.file_path()
-        return "<Custom Location>" if path is None else path
+        return self.get_file_path() or "<Custom Location>"

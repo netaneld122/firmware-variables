@@ -28,8 +28,12 @@ def gle():
     return windll.kernel32.GetLastError()
 
 
-def extract_utf16_string(raw):
+def utf16_string_from_bytes(raw):
     for i in range(0, len(raw), 2):
         if raw[i:i + 2] == b'\x00\x00':
             return raw[:i].decode('utf-16le')
     raise RuntimeError("Invalid input")
+
+
+def string_to_utf16_bytes(string):
+    return string.encode('utf-16le') + b'\x00\x00'
