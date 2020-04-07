@@ -1,5 +1,5 @@
 # firmware_variables
-![](https://github.com/netaneld122/firmware-variables/workflows/build/badge.svg)
+![](https://github.com/netaneld122/firmware-variables/workflows/Build/badge.svg)
 
 Python library for controlling UEFI variables in Windows.
 
