@@ -2,6 +2,7 @@ import contextlib
 import win32security
 import win32process
 import win32con
+import win32api
 
 
 class Patch:
@@ -12,6 +13,7 @@ class Patch:
 
     def revert(self):
         win32security.AdjustTokenPrivileges(self.token, False, self.privilege_disable)
+        win32api.CloseHandle(self.token)
 
 
 def patch_current_process_privileges():
@@ -28,7 +30,7 @@ def patch_current_process_privileges():
     )
     luid = win32security.LookupPrivilegeValue(None, win32con.SE_SYSTEM_ENVIRONMENT_NAME)
     privilege_enable = [(luid, win32security.SE_PRIVILEGE_ENABLED)]
-    privilege_disable = [(luid, win32security.SE_PRIVILEGE_REMOVED)]
+    privilege_disable = [(luid, 0)]
     win32security.AdjustTokenPrivileges(token, False, privilege_enable)
 
     return Patch(token, privilege_disable)
