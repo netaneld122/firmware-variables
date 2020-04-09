@@ -78,7 +78,7 @@ def set_variable(name, value, namespace=GLOBAL_NAMESPACE, attributes=DEFAULT_ATT
         raise WinError()
 
 
-def delete_variable(name, **kwargs):
+def delete_variable(name, *args, **kwargs):
     """
     Delete the UEFI variable
     :param name: Variable name
