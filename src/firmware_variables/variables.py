@@ -85,4 +85,4 @@ def delete_variable(name, *args, **kwargs):
     :param namespace: Guid of the form {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}
     :param attributes: @see Attributes
     """
-    set_variable(name, value=b"", **kwargs)
+    set_variable(name, value=b"", *args, **kwargs)
