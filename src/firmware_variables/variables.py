@@ -50,7 +50,7 @@ def get_variable(name, namespace=GLOBAL_NAMESPACE):
 
         if stored_bytes != 0:
             return buffer.raw[:stored_bytes], Attributes(attributes.value)
-        elif stored_bytes == 0 and gle() == ERROR_BUFFER_TOO_SMALL:
+        elif gle() == ERROR_BUFFER_TOO_SMALL:
             allocation *= 2
         else:
             raise WinError()
