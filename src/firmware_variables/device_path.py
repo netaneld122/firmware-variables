@@ -107,7 +107,7 @@ class DevicePath:
         self.data = data
 
     def __repr__(self):
-        return f"<{self.path_type}, {self.subtype}>"
+        return "<{}, {}>".format(self.path_type, self.subtype)
 
 
 class DevicePathList:
