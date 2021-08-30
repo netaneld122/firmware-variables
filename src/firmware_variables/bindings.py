@@ -1,5 +1,8 @@
-from ctypes import WINFUNCTYPE, windll
-from ctypes.wintypes import LPCWSTR, LPVOID, DWORD, PDWORD
+from ctypes import WINFUNCTYPE, windll, POINTER
+from ctypes.wintypes import LPCWSTR, LPVOID, DWORD
+
+# Note: `PDWORD` is not defined in Python 2.7
+PDWORD = POINTER(DWORD)
 
 
 def generate_stdcall_binding(lib, name, return_type, params):

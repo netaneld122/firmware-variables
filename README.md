@@ -6,7 +6,7 @@ Python library for controlling UEFI variables in Windows.
 
 ## Requirements
 * Windows ≥ 8
-* Python ≥ 3.6
+* Python ≥ 2.7
 * UEFI Firmware (required for most APIs)
 * Administrative privileges (required for most APIs)
 

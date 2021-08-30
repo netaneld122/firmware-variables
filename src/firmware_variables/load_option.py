@@ -1,6 +1,6 @@
 import struct
 
-from enum import IntFlag
+from aenum import IntFlag
 
 from .device_path import DevicePathList
 from .utils import utf16_string_from_bytes, string_to_utf16_bytes
@@ -74,4 +74,4 @@ class LoadOption:
         return raw
 
     def __repr__(self):
-        return f"<{self.description} {self.file_path_list} [{str(self.attributes)}]>"
+        return "<{} {} [{}]>".format(self.description, self.file_path_list, str(self.attributes))

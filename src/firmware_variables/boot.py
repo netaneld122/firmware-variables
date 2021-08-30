@@ -2,7 +2,7 @@ import struct
 
 from .variables import get_variable, set_variable
 from .load_option import LoadOption
-from .utils import verify_uefi_firmware
+from .utils import verify_uefi_firmware, iter_unpack
 
 
 def get_boot_order():
@@ -12,7 +12,7 @@ def get_boot_order():
     """
     verify_uefi_firmware()
     raw, _ = get_variable("BootOrder")
-    return [e[0] for e in struct.iter_unpack("<h", raw)]
+    return [e[0] for e in iter_unpack("<h", raw)]
 
 
 def set_boot_order(entry_ids):

@@ -1,6 +1,6 @@
 from ctypes import create_string_buffer, pointer, WinError
 from ctypes.wintypes import DWORD
-from enum import IntFlag
+from aenum import IntFlag
 
 from .utils import gle, verify_uefi_firmware
 from .bindings import get_firmware_environment_variable_ex_w, set_firmware_environment_variable_ex_w
