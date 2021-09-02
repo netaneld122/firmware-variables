@@ -49,7 +49,7 @@ def get_variable(name, namespace=GLOBAL_NAMESPACE):
             pointer(attributes))
 
         if stored_bytes != 0:
-            return buffer.raw[:stored_bytes], Attributes(attributes.value)
+            return buffer.raw[:stored_bytes], Attributes(int(attributes.value))
         elif gle() == ERROR_BUFFER_TOO_SMALL:
             allocation *= 2
         else:
