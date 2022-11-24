@@ -1,8 +1,8 @@
-from firmware_variables import privileges, get_boot_order, get_boot_entry, LoadOption
+from firmware_variables import adjust_privileges, get_boot_order, get_boot_entry, LoadOption
 
 
 def doit():
-    with privileges():
+    with adjust_privileges():
         order = get_boot_order()
         for entry_id in order:
             raw = get_boot_entry(entry_id)

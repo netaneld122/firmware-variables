@@ -20,7 +20,7 @@ def patch_current_process_privileges():
     """
     Patch the current process to acquire the SeSystemEnvironmentPrivilege privileges,
     it is discouraged to use it in production, this function exists only for use from ipython.
-    Use the privileges() function instead when possible.
+    Use the adjust_privileges() function instead when possible.
     :return: Patch object that can be reverted.
     """
     process = win32process.GetCurrentProcess()
@@ -37,13 +37,13 @@ def patch_current_process_privileges():
 
 
 @contextlib.contextmanager
-def privileges():
+def adjust_privileges():
     """
     Acquire SeSystemEnvironmentPrivilege in order to access UEFI variables.
 
     Usage example:
     ```
-    with privileges():
+    with adjust_privileges():
         get_variable("SomeVar")
     ```
     """
