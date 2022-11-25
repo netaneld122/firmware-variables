@@ -26,7 +26,7 @@ Run as Administrator
 from firmware_variables import *
 
 # Acquire privileges to read the firmware state in your process
-with privileges():
+with adjust_privileges():
     # Read the current boot id 
     data, attr = get_variable("BootCurrent")
     print(data)
@@ -42,7 +42,7 @@ Attributes.RUNTIME_ACCESS|BOOT_SERVICE_ACCESS
 ```python
 from firmware_variables import *
 
-with privileges():
+with adjust_privileges():
     for entry_id in get_boot_order():
         load_option = get_parsed_boot_entry(entry_id)
         print(f"{entry_id} {load_option}")
@@ -62,7 +62,7 @@ Output:
 ```python
 from firmware_variables import *
 
-with privileges():
+with adjust_privileges():
 
     # Create a new variable
     set_variable("Test", b"\x00",
