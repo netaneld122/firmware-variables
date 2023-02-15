@@ -39,3 +39,16 @@ def set_firmware_environment_variable_ex_w(*args):
             (DWORD, "attributes")
         ))
     return func(*args)
+
+
+def nt_enumerate_system_firmware_values_ex(*args):
+    func = generate_stdcall_binding(
+    lib=windll.ntdll,
+    name="NtEnumerateSystemEnvironmentValuesEx",
+    return_type=DWORD,
+    params=(
+        (DWORD, "info_class"),
+        (LPVOID, "buffer"),
+        (PDWORD, "buffer_length")
+    ))
+    return func(*args) & 0xFFFFFFFF
