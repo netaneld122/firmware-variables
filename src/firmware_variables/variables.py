@@ -5,7 +5,7 @@ from ctypes import create_string_buffer, pointer, WinError
 from ctypes.wintypes import DWORD
 from aenum import IntFlag
 
-from .utils import gle, verify_uefi_firmware
+from .utils import gle, nt_status_to_dos_error, verify_uefi_firmware
 from .bindings import get_firmware_environment_variable_ex_w, set_firmware_environment_variable_ex_w, nt_enumerate_system_firmware_values_ex
 
 GLOBAL_NAMESPACE = "{8BE4DF61-93CA-11d2-AA0D-00E098032B8C}"
@@ -91,14 +91,6 @@ def delete_variable(name, *args, **kwargs):
     set_variable(name, value=b"", *args, **kwargs)
 
 
-class NTError(OSError):
-    def __init__(self, nt_status):
-        self.nt_status = nt_status
-
-    def __str__(self):
-        return "[Error 0x{:08X}]".format(self.nt_status)
-
-
 def get_all_variables_names():
     """
     Get the names of all the UEFI Variables in the system.
@@ -131,23 +123,19 @@ def get_all_variables_names():
 
     verify_uefi_firmware()
 
-    buf = create_string_buffer(0)
     length = DWORD(0)
-    status = nt_enumerate_system_firmware_values_ex(
-        INFORMATION_VARIABLE_NAMES,
-        buf,
-        pointer(length)
-    )
-    if status != STATUS_BUFFER_TOO_SMALL:
-        raise NTError(status)
+    while True:
+        buf = create_string_buffer(length.value)
+        status = nt_enumerate_system_firmware_values_ex(
+            INFORMATION_VARIABLE_NAMES,
+            buf,
+            pointer(length)
+        )
+        if status == STATUS_BUFFER_TOO_SMALL:
+            continue
+        if status == STATUS_SUCCESS:
+            break
 
-    buf = create_string_buffer(length.value)
-    status = nt_enumerate_system_firmware_values_ex(
-        INFORMATION_VARIABLE_NAMES,
-        buf,
-        pointer(length)
-    )
-    if status != STATUS_SUCCESS:
-        raise NTError(status)
+        raise WinError(nt_status_to_dos_error(status))
 
     return parse_firmware_variables_buffer(buf)
