@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='firmware_variables',
-    version='0.0.6',
+    version='0.0.7',
     description='Windows library for controlling UEFI firmware variables',
     author='Netanel Dziubov',
     packages=['firmware_variables'],
