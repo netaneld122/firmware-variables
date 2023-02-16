@@ -29,6 +29,8 @@ def verify_uefi_firmware():
 def gle():
     return windll.kernel32.GetLastError()
 
+def nt_status_to_dos_error(nt_status):
+    return windll.ntdll.RtlNtStatusToDosError(nt_status) 
 
 def utf16_string_from_bytes(raw):
     for i in range(0, len(raw), 2):
