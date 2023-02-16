@@ -91,6 +91,31 @@ def delete_variable(name, *args, **kwargs):
     set_variable(name, value=b"", *args, **kwargs)
 
 
+def _parse_variable_entry(entry_data):
+    SIZEOF_GUID = 16
+
+    guid = uuid.UUID(bytes_le=entry_data[:SIZEOF_GUID])
+    name = entry_data[SIZEOF_GUID:].decode("utf-16le").rstrip("\x00")
+    return "{{{}}}".format(guid), str(name)
+
+
+def _parse_firmware_variables_buffer(raw_buf):
+    SIZEOF_DWORD = 4
+
+    variables = []
+    current_offset = 0
+    while True:
+        next_offset, = struct.unpack('<I', raw_buf[current_offset: current_offset + SIZEOF_DWORD])
+        if next_offset == 0:
+            break
+
+        entry_data = raw_buf[current_offset + SIZEOF_DWORD: current_offset + next_offset]
+        variables.append(_parse_variable_entry(entry_data))
+        current_offset += next_offset
+
+    return variables
+
+
 def get_all_variables_names():
     """
     Get the names of all the UEFI Variables in the system.
@@ -99,27 +124,6 @@ def get_all_variables_names():
     INFORMATION_VARIABLE_NAMES = 1
     STATUS_SUCCESS = 0
     STATUS_BUFFER_TOO_SMALL = 0xc0000023
-    SIZEOF_GUID = 16
-    SIZEOF_DWORD = 4
-
-    def parse_variable_entry(entry_data):
-        guid = uuid.UUID(bytes_le=entry_data[:SIZEOF_GUID])
-        name = entry_data[SIZEOF_GUID:].decode("utf-16le").rstrip("\x00")
-        return "{{{}}}".format(guid), str(name)
-
-    def parse_firmware_variables_buffer(raw_buf):
-        variables = []
-        current_offset = 0
-        while True:
-            next_offset, = struct.unpack('<I', raw_buf[current_offset: current_offset + SIZEOF_DWORD])
-            if next_offset == 0:
-                break
-
-            entry_data = raw_buf[current_offset + SIZEOF_DWORD: current_offset + next_offset]
-            variables.append(parse_variable_entry(entry_data))
-            current_offset += next_offset
-
-        return variables
 
     verify_uefi_firmware()
 
@@ -138,4 +142,4 @@ def get_all_variables_names():
 
         raise WinError(nt_status_to_dos_error(status))
 
-    return parse_firmware_variables_buffer(buf)
+    return _parse_firmware_variables_buffer(buf)
